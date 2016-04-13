@@ -1,8 +1,8 @@
 
 #ifndef MAIN_H_
 #define MAIN_H_
-typedef __attribute__((__packed__)) struct {
-	u8 id;
+typedef struct {
+	u32 id;
 	u8 size;
 	u8 width;
 	u8 height;

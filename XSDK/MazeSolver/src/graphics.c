@@ -29,10 +29,10 @@ void init_graphics(){
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR + 1) = 1;
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR) = FRAME_BUFFER;
 
-	xil_printf("Initialised Graphics \n\r");
 }
 
 void draw(world_t* world){
+	xil_printf("Drawing\n\r");
 	CELL_DIM = (HEIGHT-1)/world->width;
 	drawGrid(world->width, world->height);
 
