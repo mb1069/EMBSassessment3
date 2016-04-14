@@ -99,7 +99,7 @@ void receive_world(world_t* world){
 	for (i = 0; i < world->num_waypoints; i++){
 		world->waypoints[i][0] = *buffer++;
 		world->waypoints[i][1] = *buffer++;
-		//xil_printf("Waypoint %d %d \n\r", world->waypoints[i][0], world->waypoints[i][1]);
+		xil_printf("Waypoint %d %d \n\r", world->waypoints[i][0], world->waypoints[i][1]);
 	}
 
 	world->num_walls = *buffer++;
@@ -108,7 +108,7 @@ void receive_world(world_t* world){
 		world->walls[i][1] = *buffer++; // Y
 		world->walls[i][2] = *buffer++; // Dir
 		world->walls[i][3] = *buffer++; //Length
-		//xil_printf("Wall %d %d %d %d \n\r", world->walls[i][0], world->walls[i][1] ,world->walls[i][2], world->walls[i][3]);
+		xil_printf("Wall %d %d %d %d \n\r", world->walls[i][0], world->walls[i][1] ,world->walls[i][2], world->walls[i][3]);
 	}
 }
 
@@ -146,11 +146,8 @@ void solve_world(world_t* world, u32 path_len){
 	*buffer++ = (path_len & 0xFF0000) >> 16;
 	*buffer++ = (path_len & 0xFF00) >> 8;
 	*buffer++ = (path_len & 0xFF);
-	xil_printf("Sent: \n\r");
-	for (i=0; i< 25; i++){
-		xil_printf("%02x ", tmit_buffer[i]);
-	}
-	xil_printf("\n\r");
+	xil_printf("Sent solution\n\r");
+
 	//Send the buffer
 	//The size argument is the data bytes + XEL_HEADER_SIZE which is defined
 	//as the size of the destination MAC plus the type/length field
@@ -171,12 +168,8 @@ int receive_reply(){
 	// We have a frame. Note that recv_len may be LONGER than the frame
 	// that was sent. (Ethernet is weird, and that is why we need length
 	// bytes in our protocols.)
-	u8 *buffer = recv_buffer;
-	xil_printf("Received: \n\r");
-	for (i=0; i< 25; i++){
-		xil_printf("%02x ", recv_buffer[i]);
-	}
-	xil_printf("\n\r");
+	xil_printf("Received mark \n\r");
+
 
 	return recv_buffer[15];
 }

@@ -9,26 +9,30 @@
 //Typedefs
 typedef ap_uint<32> uint32;
 typedef ap_int<32> int32;
+typedef ap_uint<16> u16;
 typedef ap_uint<8> u8;
+typedef ap_uint<1> u1;
 
 //Prototypes
 void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output);
 
-//Size of the example functionality
-#define NUMDATA 100
+typedef struct {
+	u8 x;
+	u8 y;
+	u8 dir;
+	u8 len;
+} wall_t;
 
-typedef struct  __attribute__((packed)){
-	u8 id;
-	u8 size;
-	u8 width;
-	u8 height;
-	u8 num_waypoints;
-	u8 waypoints[12][2];
-	u8 num_walls;
-	u8 walls[20][4];
-	u8 start_x;
-	u8 start_y;
-} world_t;
+typedef struct {
+	u8 x;
+	u8 y;
+} point_t;
+
+typedef struct {
+	u8 set;
+	u16 cost;
+	point_t coords;
+} node_t;
 
 
 #endif

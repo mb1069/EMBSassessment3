@@ -25,6 +25,12 @@ int CORNER_MARGIN = 0;
 #define YELLOW  0b01100110
 #define MAGENTA 0b01010101
 
+// Signatures
+void drawBackground();
+void drawBorder(int height, int width, u8 colour);
+void drawRect(int xLoc, int yLoc, int width, int height, u8 colour);
+void drawDot(int x, int y, u8 colour);
+
 void init_graphics(){
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR + 1) = 1;
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR) = FRAME_BUFFER;
@@ -62,7 +68,7 @@ void drawGrid(int width, int height){
 			drawDot(xCoord, yCoord, BLACK);
 		}
 	}
-	drawBorder(height, width, BLACK);
+//	drawBorder(height, width, BLACK);
 }
 
 void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height){
@@ -92,29 +98,23 @@ void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height
 	}
 }
 
-
 void drawBackground(){
 	drawRect(-CORNER_MARGIN, -CORNER_MARGIN, WIDTH, HEIGHT, WHITE);
 }
 
-
-
-
-
-
-void drawBorder(int height, int width, u8 colour){
-	int x, y;
-	x = y = 0;
-	for (y = -1; y<(CELL_DIM * height) + 1; y++){
-		drawDot(-1, y, colour);
-		drawDot((CELL_DIM * width)+1, y, colour);
-	}
-	x = y = 0;
-	for (x = -1; x<(CELL_DIM * width) + 1; x++){
-		drawDot(x, -1, colour);
-		drawDot(x, (CELL_DIM * height) + 1, colour);
-	}
-}
+//void drawBorder(int height, int width, u8 colour){
+//	int x, y;
+//	x = y = 0;
+//	for (y = -1; y<(CELL_DIM * height) + 1; y++){
+//		drawDot(-1, y, colour);
+//		drawDot((CELL_DIM * width)+1, y, colour);
+//	}
+//	x = y = 0;
+//	for (x = -1; x<(CELL_DIM * width) + 1; x++){
+//		drawDot(x, -1, colour);
+//		drawDot(x, (CELL_DIM * height) + 1, colour);
+//	}
+//}
 
 void drawWaypoint(int x, int y){
 	drawRect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, MAGENTA);

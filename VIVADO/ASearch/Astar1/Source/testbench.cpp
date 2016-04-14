@@ -2,16 +2,18 @@
 
 
 int main() {
-
+	int i;
     hls::stream<uint32> to_hw, from_hw;
-    uint32 testdata[100];
 
-    u8 waypoints[12][2] =  {
-    		{7, 2},
+
+    u8 waypoints[2][2] =  {
 			{2, 3},
-			{6, 5},
+			{6, 5}
     };
 
+    u8 size = 10;
+
+    u8 num_walls = 6;
     u8 walls[20][4] =  {
     		{0, 8, 0, 1},
 			{5, 3, 1, 3},
@@ -21,25 +23,27 @@ int main() {
 			{3, 8, 1, 1}
     };
 
-    world_t world;
-    world.id = 0;
-    world.size = 0;
-    world.height = 10;
-    world.width = 10;
-    world.num_waypoints = 3;
-    world.num_walls = 6;
-    world.start_x = 2;
-    world.start_y = 9;
+    // Max size of 22 * 32bits
+    uint32 testdata[22];
 
-    memcpy(&testdata, &world, sizeof(world));
+    // Data being copied over:
+    // 4 bytes of waypoints (8, 8, 8, 8) in 1 32
+    // 1 32 bit for total length
+    // 4 bytes per wall * number of walls
+    memcpy(&testdata,&waypoints,  sizeof(waypoints));
 
-    //Create input data
-    for(int i = 0; i < NUMDATA; i++) {
-        testdata[i] = i;
+    testdata[1] = (((uint32) num_walls) << 16) | (size);
+
+    memcpy(&testdata[2], &walls, sizeof(walls[0])*num_walls);
+
+    for (i = 0; i<22; i++){
+    	printf("%08x ", (int) testdata[i]);
     }
-    testdata[0] = 2000;
+    printf("\n\r");
+
+
     //Write input data
-    for(int i = 0; i < NUMDATA; i++) {
+    for (i = 0; i < num_walls+2; i++) {
         to_hw.write(testdata[i]);
     }
 
@@ -47,15 +51,7 @@ int main() {
     toplevel(to_hw, from_hw);
 
     //Read and report the output
-    int sum = from_hw.read();
     int sub = from_hw.read();
-    printf("Sum of input: %d\n", sum);
-    printf("Values 1 to %d subtracted from value 0: %d\n", NUMDATA-1, sub);
+    printf("Shortest path: %d\n", (int) from_hw.read());
 
-    //Check values
-    if(sum == 2780 && sub == 1220) {
-        return 0;
-    } else {
-        return 1; //An error!
-    }
 }
