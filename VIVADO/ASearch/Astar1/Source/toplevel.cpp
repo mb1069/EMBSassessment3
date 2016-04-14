@@ -23,7 +23,6 @@ u8 grid_size;
 int32 inputdata[22];
 
 int NUM_NODES = 2000;
-node_t closed[2000];
 node_t open[2000];
 
 
@@ -73,7 +72,7 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
     int min_len = 0;
     // Set active, 0 cost and starting waypoint
     node_t initial;
-    initial.set = 1;
+    initial.set = 2;
     initial.cost = 1;
     initial.coords = waypoints[0];
     point_t origin = {0,0};
@@ -104,7 +103,7 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
         	for (int y=0; y<grid_size; y++){
         		if (is_wall(y,x)){
         			printf("2");
-        		} else if (is_in_set(y,x,open) | is_in_set(y,x,closed)){
+        		} else if (is_in_set(y,x,open)){
         			printf("1");
         		} else {
         			printf("0");
@@ -147,7 +146,7 @@ void affect_neighbour(int x, int y, int cost, int* num_open){
 void open_node(int x, int y, int cost, int* num_open){
 	int i = find_first_empty_slot(open);
 	point_t p = {x,y};
-	node_t n = {1, cost+1, p};
+	node_t n = {2, cost+1, p};
 	open[i] = n;
 	num_open++;
 }
@@ -162,7 +161,7 @@ int is_openable(int x, int y){
 		return 0;
 	}
 	// If is wall or node already explored
-	int i = is_in_set(x, y, closed);
+	int i = is_in_set(x, y, open);
 	if (is_wall(x, y) | (i>0)){
 		return 0;
 	}
@@ -173,7 +172,9 @@ int is_in_set(int x, int y, node_t nodes[]){
 	for (int i=0; i<NUM_NODES; i++){
 		if (nodes[i].coords.x==x){
 			if (nodes[i].coords.y==y){
-				return i;
+				if (nodes[i].set!=0){
+					return i;
+				}
 			}
 		}
 	}
@@ -212,7 +213,7 @@ int get_best_node(){
 	int index = -1;
 	uint32 min_cost = 2147483647;
 	for (int i=0; i<len; i++){
-		if (open[i].set==1){
+		if (open[i].set==2){
 			uint32 node_cost = manhattan(&open[i].coords, &waypoints[1]) + open[i].cost;
 			if (node_cost<min_cost){
 				index = i;
@@ -227,11 +228,11 @@ int get_best_node(){
 }
 
 void close_node(int index, int*num_open){
-	open[index].set = 0;
-	int i = find_first_empty_slot(closed);
-	closed[i].set = 1;
-	closed[i].cost = 0;
-	closed[i].coords = open[index].coords;
+	open[index].set = 1;
+//	int i = find_first_empty_slot(closed);
+//	closed[i].set = 1;
+//	closed[i].cost = 0;
+//	closed[i].coords = open[index].coords;
 	num_open--;
 }
 
