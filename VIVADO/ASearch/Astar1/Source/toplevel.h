@@ -10,6 +10,7 @@
 typedef ap_uint<32> uint32;
 typedef ap_int<32> int32;
 typedef ap_uint<16> u16;
+typedef ap_uint<16> u16;
 typedef ap_uint<8> u8;
 typedef ap_uint<1> u1;
 
