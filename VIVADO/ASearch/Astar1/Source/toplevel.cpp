@@ -108,24 +108,24 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 	for (u8 w1 = 0; w1 < num_waypoints; w1++) {
 		for (u8 w2 = w1; w2 < num_waypoints; w2++) {
 			if (w1 != w2) {
-				printf("Going from %d,%d to %d,%d (%d,%d) \n\r",
-						(int) waypoints[w1].x, (int) waypoints[w1].y,
-						(int) waypoints[w2].x, (int) waypoints[w2].y, (int) w1,
-						(int) w2);
+//				printf("Going from %d,%d to %d,%d (%d,%d) \n\r",
+//						(int) waypoints[w1].x, (int) waypoints[w1].y,
+//						(int) waypoints[w2].x, (int) waypoints[w2].y, (int) w1,
+//						(int) w2);
 				distance_matrix[w1][w2] = get_shortest_path(waypoints[w1],
 						waypoints[w2], 0, output);
 				distance_matrix[w2][w1] = distance_matrix[w1][w2];
-				printf("Solution: %d \n\r", (int) distance_matrix[w1][w2]);
-				printf("\n\r");
+//				printf("Solution: %d \n\r", (int) distance_matrix[w1][w2]);
+//				printf("\n\r");
 			}
 		}
 	}
-	for (u8 w1 = 0; w1 < num_waypoints; w1++) {
-		for (u8 w2 = 0; w2 < num_waypoints; w2++) {
-			printf("%d ", (int) (distance_matrix[w1][w2]));
-		}
-		printf("\r");
-	}
+//	for (u8 w1 = 0; w1 < num_waypoints; w1++) {
+//		for (u8 w2 = 0; w2 < num_waypoints; w2++) {
+//			printf("%d ", (int) (distance_matrix[w1][w2]));
+//		}
+//		printf("\r");
+//	}
 	uint32 shortest_loop = get_shortest_loop(distance_matrix, num_waypoints,
 			best_tour);
 	printf("Best solution length: %d \n\r", (int) shortest_loop);
@@ -180,8 +180,8 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 		close_node(index, &num_open, nodes);
 	}
 	if (get_path) {
-		printf("From %d:%d -> %d:%d\r", (int) w1.x, (int) w1.y, (int) w2.x,
-				(int) w2.y);
+//		printf("From %d:%d -> %d:%d\r", (int) w1.x, (int) w1.y, (int) w2.x,
+//				(int) w2.y);
 		u1 flag = 1;
 		while (flag) {
 			uint32 out = 0;
@@ -198,7 +198,7 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 			}
 
 		}
-		printf("\n");
+//		printf("\n");
 		output.write((uint32) 0xFFFFFFFF);
 	}
 	return min_len - 1;
