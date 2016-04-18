@@ -93,9 +93,7 @@ void receive_world(world_t* world){
 	world->width = *buffer++;
 	world->height = *buffer++;
 
-	world->num_waypoints = *buffer++ - 1;
-	world->start_x = *buffer++;
-	world->start_y = *buffer++;
+	world->num_waypoints = *buffer++;
 	xil_printf("Start %d %d \n\r", world->start_x, world->start_y);
 	for (i = 0; i < world->num_waypoints; i++){
 		world->waypoints[i][0] = *buffer++;

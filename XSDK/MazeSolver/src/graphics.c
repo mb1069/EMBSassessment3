@@ -42,18 +42,19 @@ void draw(world_t* world){
 	CELL_DIM = (HEIGHT-1)/world->width;
 	drawGrid(world->width, world->height);
 
-	drawStart(world->start_x, world->start_y);
-
 	int i;
 
 	for (i=0; i< world->num_waypoints; i++){
-		drawWaypoint(world->waypoints[i][0], world->waypoints[i][1]);
+		if (i==0){
+			drawStart(world->waypoints[i][0], world->waypoints[i][1]);
+		} else {
+			drawWaypoint(world->waypoints[i][0], world->waypoints[i][1]);
+		}
 	}
 
 	for (i=0; i< world->num_walls; i++){
 		drawWall(world->walls[i][0], world->walls[i][1], world->walls[i][2], world->walls[i][3], world->width, world->height);
 	}
-
 }
 
 

@@ -4,7 +4,7 @@
 #include "graphics.h"
 #include "ethernet.h"
 #include "main.h"
-
+#include "fsl.h"
 
 int getInput();
 
@@ -21,7 +21,6 @@ int main() {
 
     	xil_printf("Enter world size: ");
     	int world_size = getInput();
-
 		world_t world = {.id = world_id, .size = world_size};
 
 		xil_printf("Sending... \n\r");
@@ -29,14 +28,42 @@ int main() {
 		xil_printf("Receiving... \n\r");
 		receive_world(&world);
 
-		xil_printf("Received world: \n\r");
-		xil_printf("    - ID: %d \n\r", world.id);
-		xil_printf("    - Size: %d \n\r", world.size);
-//		xil_printf("    - Height: %d \n\r", world.height);
-//		xil_printf("    - Width: %d \n\r", world.width);
-//		xil_printf("    - Num Waypoints: %d \n\r", world.num_waypoints);
-//		xil_printf("    - Num Walls: %d \n\r", world.num_walls);
+		xil_printf("Received world: \n\r id: %d size: %d waypoints: %d walls: %d\n\r", world.id, world.size, world.height, world.num_waypoints, world.num_walls);
 		draw(&world);
+
+	    u32 testdata[27];
+	    u32 info = 0;
+//	    switch (world.size){
+//	    	case 0:
+//	    		info |= ((u32) 10) << 16;
+//	    		break;
+//	    	case 1:
+//	    		info |= ((u32) 30) << 16;
+//	    		break;
+//	    	case 2:
+//	    		info |= ((u32) 60) << 16;
+//	    		break;
+//	    }
+
+	    info |= ((u32) world.num_waypoints) << 8;
+	    info |= ((u32) world.num_walls);
+	    testdata[0] = info;
+	    xil_printf("%d \n\r", world.size);
+	    xil_printf("%d \n\r", world.num_waypoints);
+	    xil_printf("%d \n\r", world.num_walls);
+	    xil_printf("%08x \n\r", (int) testdata[0]);
+	    memcpy(&testdata[1],&world.waypoints,  sizeof(world.waypoints[0])*world.num_waypoints);
+	    memcpy(&testdata[1+(world.num_waypoints/2)], &world.walls, sizeof(world.walls[0])*world.num_walls);
+	    putfslx(testdata, 0, FSL_DEFAULT);
+
+
+	    int i;
+	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
+	    	xil_printf("%08x ", (int) testdata[i]);
+	    }
+	    xil_printf("\r\n");
+	    getInput();
+
 //		xil_printf("Enter solution length: ");
 //		u32 length = getInput();
 //		solve_world(&world, length);
@@ -51,16 +78,16 @@ int main() {
 //		xil_printf("\n\r");
 
 // Brute solver
-		int mark = 1;
-		u32 length = 0;
-		while (mark!=0){
-			solve_world(&world, length);
-			mark = receive_reply();
-			if (mark==0){
-				xil_printf("Correct solution: %d \n\r", (int) length);
-			}
-			length++;
-		}
+//		int mark = 1;
+//		u32 length = 0;
+//		while (mark!=0){
+//			solve_world(&world, length);
+//			mark = receive_reply();
+//			if (mark==0){
+//				xil_printf("Correct solution: %d \n\r", (int) length);
+//			}
+//			length++;
+//		}
 
     }
     return 0;
