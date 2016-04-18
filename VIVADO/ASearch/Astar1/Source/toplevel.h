@@ -20,12 +20,12 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output);
 void swap(u4 *x, u4 *y);
 void permute(u16 matrix[][12], u4 tour[12], u4 size, u16* smallest_distance, u4 best_tour[12]);
 u16 get_shortest_loop(u16 matrix[][12], u4 size, u4 tour[12]);
-int get_path_cost(u16 matrix[][12], u4 tour[12], u4 size);
+u16 get_path_cost(u16 matrix[][12], u4 tour[12], u4 size);
 
 typedef struct {
 	u8 x;
 	u8 y;
-	u8 dir;
+	u1 dir;
 	u8 len;
 } wall_t;
 
@@ -35,9 +35,10 @@ typedef struct {
 } point_t;
 
 typedef struct {
-	u8 set;
-	u16 cost;
+	u4 set;
+	u11 cost;
 	point_t coords;
+	u11 prev;
 } node_t;
 
 
