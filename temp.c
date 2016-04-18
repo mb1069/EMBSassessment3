@@ -2,10 +2,10 @@
 
 int matrix[12][12] = {
 	//       A  B  C  D
-	/**A**/ {0,  6, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0},
-	/**B**/ {6,  0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0},
-	/**C**/ {8,  4, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0},
-	/**D**/ {10, 4, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	/**A**/ {0,  7, 3, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+	/**B**/ {7,  0, 8,  4, 0, 0, 0, 0, 0, 0, 0, 0},
+	/**C**/ {3,  8, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0},
+	/**D**/ {11, 4,12,  0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -32,20 +32,30 @@ void swap(int *x, int *y){
 
 
 void permute(int matrix[][12], int tour[12], int starting_index, int size, int* smallest_distance, int best_tour[12]){
+	int p[13];
 	int i;
-	if (starting_index==size){
-		int path_val = get_path_cost(matrix, tour, size);
-		if (path_val<*smallest_distance){
-			*smallest_distance = path_val;
-			for (i = 0; i < size; i++){
-				best_tour[i] = tour[i];
+	for (i = 0; i<size+1; i++){
+		p[i]=i;
+	}
+	i = 0;
+	while (i < size){
+		p[i]--;
+		int j = i%2==1 ? p[i] : 0;
+		swap(tour+j, tour+i);
+
+		if (tour[0]==0){
+		        int path_val = get_path_cost(matrix, tour, size);
+			if (path_val<*smallest_distance){
+				*smallest_distance = path_val;
+				for (i = 0; i < size; i++){
+					best_tour[i] = tour[i];
+				}
 			}
 		}
-	} else {
-		for (i = starting_index; i < size; i++){
-			swap(tour+starting_index, tour+i);
-			permute(matrix, tour, starting_index+1, size, smallest_distance, best_tour);	
-			swap(tour+starting_index, tour+i);		
+		i = 1;
+		while (p[i]==0){
+			p[i] = i;
+			i++;
 		}
 	}
 }
