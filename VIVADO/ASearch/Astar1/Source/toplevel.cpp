@@ -23,11 +23,12 @@ uint32 num_walls;
 uint32 read_walls = 0;
 
 point_t waypoints[12];
-uint32 num_waypoints;
+u4 num_waypoints;
 uint32 read_waypoints = 0;
 
-u16 solutions[12][12];
+u16 distance_matrix[12][12];
 
+u4 best_tour[12] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
 u8 grid_size;
 
@@ -77,12 +78,12 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
     printf("Num_waypoints: %d \n", (int) num_waypoints);
 
     for (i=0; i<num_waypoints; i++){
-    	printf("Waypoint %d  x: %d y: %d \n\r", i, (int) waypoints[i].x, (int) waypoints[i].y);
+    	printf("Waypoint %d  x: %d y: %d \r", i, (int) waypoints[i].x, (int) waypoints[i].y);
     }
 
     printf("Num_walls: %d \n", (int) num_walls);
     for (i=0; i<num_walls; i++){
-    	printf("Walls %d  x: %d y: %d dir: %d len: %d \n\r", i, (int) walls[i].x,(int) walls[i].y,(int) walls[i].dir,(int) walls[i].len);
+    	printf("Walls %d  x: %d y: %d dir: %d len: %d \r", i, (int) walls[i].x,(int) walls[i].y,(int) walls[i].dir,(int) walls[i].len);
     }
 
     for (int x=0; x<grid_size; x++){
@@ -106,8 +107,8 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
     			if ((w1==4) & (w2==11)){
     				printf("Debug time!\n\r");
     			}
-    			solutions[w1][w2] = get_shortest_path(waypoints[w1], waypoints[w2]);
-    			solutions[w2][w1] = solutions[w1][w2];
+    			distance_matrix[w1][w2] = get_shortest_path(waypoints[w1], waypoints[w2]);
+    			distance_matrix[w2][w1] = distance_matrix[w1][w2];
     			printf("Solution: %d \n\r", (int) get_shortest_path(waypoints[w1], waypoints[w2]));
     			printf("\n\r");
     		}
@@ -115,11 +116,17 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
     }
     for (u8 w1 = 0; w1<num_waypoints; w1++){
     	for (u8 w2 = 0; w2<num_waypoints; w2++){
-    		printf("%d ", (int) (solutions[w1][w2]));
+    		printf("%d ", (int) (distance_matrix[w1][w2]));
     	}
     	printf("\r");
     }
 
+    printf("Best solution length: %d \n\r", (int) get_shortest_loop(distance_matrix, num_waypoints, best_tour));
+	printf("\n\rBest path: ");
+	for (i=0; i<num_waypoints; i++){
+		printf("%d, ", (int) best_tour[i]);
+	}
+	printf("\n\r");
 
     output.write(0);
 
@@ -132,6 +139,7 @@ u16 get_shortest_path(point_t w1,  point_t w2){
 		nodes[n].set=0;
 	}
 	u16 min_len = 0;
+
     node_t initial;
     initial.set = 2;
     initial.cost = 1;
@@ -151,7 +159,8 @@ u16 get_shortest_path(point_t w1,  point_t w2){
     	}
     	close_node(index, &num_open, nodes);
     }
-    return min_len;
+    return min_len-1;
+
 }
 
 void check_neighbours(node_t* n, int* num_open, node_t* nodes, point_t* target){

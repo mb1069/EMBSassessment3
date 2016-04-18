@@ -10,12 +10,17 @@
 typedef ap_uint<32> uint32;
 typedef ap_int<32> int32;
 typedef ap_uint<16> u16;
-typedef ap_uint<16> u16;
+typedef ap_uint<11> u11;
 typedef ap_uint<8> u8;
+typedef ap_uint<4> u4;
 typedef ap_uint<1> u1;
 
 //Prototypes
 void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output);
+void swap(u4 *x, u4 *y);
+void permute(u16 matrix[][12], u4 tour[12], u4 size, u16* smallest_distance, u4 best_tour[12]);
+u16 get_shortest_loop(u16 matrix[][12], u4 size, u4 tour[12]);
+int get_path_cost(u16 matrix[][12], u4 tour[12], u4 size);
 
 typedef struct {
 	u8 x;
