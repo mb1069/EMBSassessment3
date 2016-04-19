@@ -58,13 +58,26 @@ void request_world(int size, u64 id) {
 	XEmacLite_Send(&ether, tmit_buffer, 10 + XEL_HEADER_SIZE);
 }
 
+//int memcmp2(u8 *arr1, u8 *arr2, int len){
+//
+//	while (len>=0){
+//		xil_printf("Comparing: %d %d %d \n\r", (int) arr1[len], (int) arr2[len], len);
+//		if (arr1[len]!=arr2[len]){
+//			return 0;
+//		}
+//		len--;
+//	}
+//	return 1;
+//}
+
+
 void receive_world(world_t* world){
 	int i;
 	//Poll for receive packet. recv_len must be defined as volatile!
 	volatile int recv_len = 0;
 	while (recv_len == 0)  {
 		recv_len = XEmacLite_Recv(&ether, recv_buffer);
-		if (memcmp(&recv_buffer, &mac_address, 6)!=0){
+		if (memcmp(recv_buffer, mac_address, 6)!=0){
 			recv_len = 0;
 		}
 	}
@@ -94,20 +107,19 @@ void receive_world(world_t* world){
 	world->height = *buffer++;
 
 	world->num_waypoints = *buffer++;
-	xil_printf("Start %d %d \n\r", world->start_x, world->start_y);
-	for (i = 0; i < world->num_waypoints; i++){
-		world->waypoints[i][0] = *buffer++;
-		world->waypoints[i][1] = *buffer++;
-		xil_printf("Waypoint %d %d \n\r", world->waypoints[i][0], world->waypoints[i][1]);
+
+	for (i = 0; i < world->num_waypoints; i++, buffer+=sizeof(point_t)){
+		memcpy(&world->waypoints[i], buffer, sizeof(point_t));
 	}
 
 	world->num_walls = *buffer++;
-	for (i = 0; i < world->num_walls; i++){
-		world->walls[i][0] = *buffer++; // X
-		world->walls[i][1] = *buffer++; // Y
-		world->walls[i][2] = *buffer++; // Dir
-		world->walls[i][3] = *buffer++; //Length
-		xil_printf("Wall %d %d %d %d \n\r", world->walls[i][0], world->walls[i][1] ,world->walls[i][2], world->walls[i][3]);
+	for (i = 0; i < world->num_walls; i++, buffer+=sizeof(wall_t)){
+		memcpy(&world->walls[i], buffer, sizeof(wall_t));
+//		world->walls[i].x = *buffer++; // X
+//		world->walls[i].y = *buffer++; // Y
+//		world->walls[i].dir = *buffer++; // Dir
+//		world->walls[i].len = *buffer++; //Length
+//		xil_printf("Wall %d %d %d %d \n\r", world->walls[i][0], world->walls[i][1] ,world->walls[i][2], world->walls[i][3]);
 	}
 }
 
@@ -154,12 +166,11 @@ void solve_world(world_t* world, u32 path_len){
 }
 
 int receive_reply(){
-	int i;
 	//Poll for receive packet. recv_len must be defined as volatile!
 	volatile int recv_len = 0;
 	while (recv_len == 0)  {
 		recv_len = XEmacLite_Recv(&ether, recv_buffer);
-		if (memcmp(&recv_buffer, &mac_address, 6)!=0){
+		if (memcmp(recv_buffer, mac_address, 6)!=0){
 			recv_len = 0;
 		}
 	}

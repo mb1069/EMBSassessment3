@@ -18,6 +18,7 @@ int CORNER_MARGIN = 0;
 
 // Colour definitions (2 pixels per byte)
 #define BLACK   0b00000000
+#define RED     0b00000100
 #define WHITE   0b01110111
 #define GREEN   0b00000010
 #define BLUE    0b00010001
@@ -30,6 +31,7 @@ void drawBackground();
 void drawBorder(int height, int width, u8 colour);
 void drawRect(int xLoc, int yLoc, int width, int height, u8 colour);
 void drawDot(int x, int y, u8 colour);
+void drawPath(int x, int y, u8 colour);
 
 void init_graphics(){
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR + 1) = 1;
@@ -55,6 +57,7 @@ void draw(world_t* world){
 	for (i=0; i< world->num_walls; i++){
 		drawWall(world->walls[i][0], world->walls[i][1], world->walls[i][2], world->walls[i][3], world->width, world->height);
 	}
+//	drawPath(0, 0, RED);
 }
 
 
@@ -135,6 +138,17 @@ void drawRect(int xLoc, int yLoc, int width, int height, u8 colour) {
         }
     }
 }
+//
+//void drawPath(int x, int y, u8 colour){
+//	x+= (CELL_DIM/2);
+//	y+= (CELL_DIM/2);
+//	int i, i2;
+//	for (i = x-2; i<=x+2; i++){
+//		for (i2 = y-2; i2<=y+2; i2++){
+//			*((volatile u8 *) FRAME_BUFFER + CORNER_MARGIN + i + (WIDTH * (i2+CORNER_MARGIN))) = colour;
+//		}
+//	}
+//}
 
 void drawDot(int x, int y, u8 colour) {
 	*((volatile u8 *) FRAME_BUFFER + CORNER_MARGIN + x + (WIDTH * (y+CORNER_MARGIN))) = colour;

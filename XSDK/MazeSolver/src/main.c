@@ -11,6 +11,7 @@ int getInput();
 // Prototypes
 
 int main() {
+	int i;
 	xil_printf("\n\r\n");
 	init_graphics();
     init_ethernet();
@@ -25,48 +26,95 @@ int main() {
 
 		xil_printf("Sending... \n\r");
 		request_world(world_size, world_id); //Send a test frame
-		xil_printf("Receiving... \n\r");
 		receive_world(&world);
 
 		xil_printf("Received world: \n\r id: %d size: %d waypoints: %d walls: %d\n\r", world.id, world.size, world.height, world.num_waypoints, world.num_walls);
 		draw(&world);
-
 	    u32 testdata[27];
 	    u32 info = 0;
-//	    switch (world.size){
-//	    	case 0:
-//	    		info |= ((u32) 10) << 16;
-//	    		break;
-//	    	case 1:
-//	    		info |= ((u32) 30) << 16;
-//	    		break;
-//	    	case 2:
-//	    		info |= ((u32) 60) << 16;
-//	    		break;
-//	    }
+	    if(world.size==0){
+	    		info |= ((u32) 10) << 16;
+	    } else if (world.size == 1){
+	    		info |= ((u32) 30) << 16;
+	    } else if (world.size == 2){
+	    		info |= ((u32) 60) << 16;
+	    }
 
 	    info |= ((u32) world.num_waypoints) << 8;
 	    info |= ((u32) world.num_walls);
 	    testdata[0] = info;
-	    xil_printf("%d \n\r", world.size);
-	    xil_printf("%d \n\r", world.num_waypoints);
-	    xil_printf("%d \n\r", world.num_walls);
-	    xil_printf("%08x \n\r", (int) testdata[0]);
+
 	    memcpy(&testdata[1],&world.waypoints,  sizeof(world.waypoints[0])*world.num_waypoints);
 	    memcpy(&testdata[1+(world.num_waypoints/2)], &world.walls, sizeof(world.walls[0])*world.num_walls);
-	    putfslx(testdata, 0, FSL_DEFAULT);
 
+//	     TODO check memcpy against vivado
+//	     000a0406 02070002 05060302 01000800
+//	     03010305 02010409 04000203 04010504 01010803
+	    int data_i = 0;
+//	    for (i = 0; i<world.num_waypoints; i= i + 2){
+//	    	u32 *data = (u32*) &world.waypoints[i];
+//	    	xil_printf("%08x ", (int) *data);
+//	    	testdata[1+(data_i++)] = *data;
+//	    }
+//	    for (i = 0; i<world.num_walls; i++){
+//	    	u32 *data = (u32*) &world.walls[i];
+//	    	xil_printf("%08x ", (int) *data);
+//	    	testdata[1+(data_i++)] = *data;
+//	    }
+	    for (i = 0; i<world.num_waypoints; i= i + 2){
+	    	u32 data = 0;
+	    	data |= (((u32)world.waypoints[i].x));
+	    	data |= (((u32)world.waypoints[i].y)<< 8);
+	    	data |= (((u32)world.waypoints[i+1].x) << 16);
+	    	data |= (((u32)world.waypoints[i+1].y))  << 24;
+//	    	xil_printf("%08x ", (int) data);
+	    	testdata[1+(data_i++)] = data;
+	    }
+	    for (i = 0; i<world.num_walls; i++){
+	    	u32 data = 0;
+	    	data |= (((u32)world.walls[i].x));
+	    	data |= (((u32)world.walls[i].y)<< 8);
+	    	data |= (((u32)world.walls[i].dir) << 16);
+	    	data |= (((u32)world.walls[i].len))  << 24;
+//	    	xil_printf("%08x ", (int) data);
+	    	testdata[1+(data_i++)] = data;
+	    }
 
-	    int i;
+	    xil_printf("\n\r");
 	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
 	    	xil_printf("%08x ", (int) testdata[i]);
 	    }
-	    xil_printf("\r\n");
-	    getInput();
+	    for (i=0; i<1+data_i; i++){
+	    	putfslx(testdata[i], 0, FSL_DEFAULT);
+	    }
+	    xil_printf("Sent to hardware \n\r");
 
+	    xil_printf("\r\n");
+	    u32 val;
+	    getfslx(val, 0, FSL_DEFAULT);
+	    i = 0;
+	    while (val!='\n'){
+//	    	result[i++] = val;
+	    	xil_printf("%d \n\r", (int) val);
+	    	getfslx(val, 0, FSL_DEFAULT);
+	    }
+	    u32 shortest_path;
+	    xil_printf("Getting shortest path: \n\r");
+
+	    getfslx(shortest_path, 0, FSL_DEFAULT);
+	    xil_printf("Got shortest path: %d\n\r", (int) shortest_path);
+
+
+
+//
+//
+//	    getInput();
+//	    solve_world(&world, shortest_path);
+//	    xil_printf("Server replied %d \n\r", receive_reply());
+//
 //		xil_printf("Enter solution length: ");
 //		u32 length = getInput();
-//		solve_world(&world, length);
+
 //		int mark = receive_reply();
 //		if (mark==0){
 //			xil_printf("%d Correct solution!", length);

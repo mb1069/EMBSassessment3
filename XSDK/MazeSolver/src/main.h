@@ -1,16 +1,31 @@
 
 #ifndef MAIN_H_
 #define MAIN_H_
-typedef struct {
+
+typedef struct __attribute__((packed)){
+	u8 x;
+	u8 y;
+} point_t;
+
+typedef struct __attribute__((packed)){
+	u8 x;
+	u8 y;
+	u8 dir;
+	u8 len;
+} wall_t;
+
+typedef struct __attribute__((packed)){
 	u32 id;
 	u8 size;
 	u8 width;
 	u8 height;
 	u8 num_waypoints;
-	u8 waypoints[12][2];
+	point_t waypoints[12];
 	u8 num_walls;
-	u8 walls[20][4];
+	wall_t walls[20];
 } world_t;
+
+
 
 
 #endif /* MAIN_H_ */

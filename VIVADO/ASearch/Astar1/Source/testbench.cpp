@@ -122,10 +122,38 @@ int main() {
     printf("\r");
 
 
+    uint32 testdata2[27] = {
+    		0x003C0C14,
+			0x31392107,
+			0x2B310C2D,
+			0x28030115,
+			0x2B383630,
+			0x332D2A39,
+			0x353B2D38,
+			0x08001C00,
+			0x06013523,
+			0x13010E27,
+			0x12001635,
+			0x13010F04,
+			0x0401302B,
+			0x04012820,
+			0x0B00170C,
+			0x0F012F11,
+			0x0800352D,
+			0x09003714,
+			0x0100333A,
+			0x04012A34,
+			0x0F000638,
+			0x0901111C,
+			0x08001C2F,
+			0x02013930,
+			0x0500123A,
+			0x01000B11,
+			0x01002A11};
     //Write input data
     printf("Num data: %d \r", (int) (num_walls+(num_waypoints/2)+1));
     for (i = 0; i < num_walls+(num_waypoints/2)+1; i++) {
-        to_hw.write(testdata[i]);
+        to_hw.write(testdata2[i]);
     }
 
     //Run the hardware

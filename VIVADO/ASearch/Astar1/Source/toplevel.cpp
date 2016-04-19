@@ -220,7 +220,7 @@ void affect_neighbour(int x, int y, int cost, int* num_open, node_t* nodes,
 	int i = is_in_set(x, y, nodes);
 	if (i > 0) {
 		if (nodes[i].cost > (cost + 1)) {
-			nodes[i].prev = index;
+//			nodes[i].prev = index;
 			nodes[i].cost = cost + 1;
 		}
 	} else if (is_openable(x, y, nodes)) {
