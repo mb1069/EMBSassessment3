@@ -11,7 +11,6 @@
 ///////////////////////////////////////////////////
 
 int CELL_DIM = HEIGHT/60;
-int CORNER_MARGIN = 0;
 
 // Set frame buffer location to start of DDR
 #define FRAME_BUFFER XPAR_DDR_SDRAM_MPMC_BASEADDR
@@ -31,12 +30,10 @@ void drawBackground();
 void drawBorder(int height, int width, u8 colour);
 void drawRect(int xLoc, int yLoc, int width, int height, u8 colour);
 void drawDot(int x, int y, u8 colour);
-void drawPath(int x, int y, u8 colour);
 
 void init_graphics(){
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR + 1) = 1;
     *((volatile unsigned int *) XPAR_EMBS_VGA_0_BASEADDR) = FRAME_BUFFER;
-
 }
 
 void draw(world_t* world){
@@ -48,16 +45,15 @@ void draw(world_t* world){
 
 	for (i=0; i< world->num_waypoints; i++){
 		if (i==0){
-			drawStart(world->waypoints[i][0], world->waypoints[i][1]);
+			drawWaypoint(world->waypoints[i].x, world->waypoints[i].y, GREEN);
 		} else {
-			drawWaypoint(world->waypoints[i][0], world->waypoints[i][1]);
+			drawWaypoint(world->waypoints[i].x, world->waypoints[i].y, MAGENTA);
 		}
 	}
 
 	for (i=0; i< world->num_walls; i++){
-		drawWall(world->walls[i][0], world->walls[i][1], world->walls[i][2], world->walls[i][3], world->width, world->height);
+		drawWall(world->walls[i].x, world->walls[i].y, world->walls[i].dir, world->walls[i].len, world->width, world->height);
 	}
-//	drawPath(0, 0, RED);
 }
 
 
@@ -66,10 +62,7 @@ void drawGrid(int width, int height){
 	int x, y;
 	for (x=0; x<width+1; x++){
 		for (y=0; y<height+1; y++){
-			int xCoord = x*CELL_DIM;
-			int yCoord = y*CELL_DIM;
-
-			drawDot(xCoord, yCoord, BLACK);
+			drawDot(x*CELL_DIM, y*CELL_DIM, BLACK);
 		}
 	}
 //	drawBorder(height, width, BLACK);
@@ -88,11 +81,9 @@ void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height
 
 	x *= CELL_DIM;
 	y *= CELL_DIM;
-	x += 1;
-	y += 1;
 	int i;
 	for (i=0; i<length; i++){
-		drawRect(x, y, CELL_DIM-1, CELL_DIM-1, BLACK);
+		drawRect(x+1, y+1, CELL_DIM-1, CELL_DIM-1, BLACK);
 		if (dir==0){
 			x+=CELL_DIM;
 		} else {
@@ -103,7 +94,7 @@ void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height
 }
 
 void drawBackground(){
-	drawRect(-CORNER_MARGIN, -CORNER_MARGIN, WIDTH, HEIGHT, WHITE);
+	drawRect(0, 0, WIDTH, HEIGHT, WHITE);
 }
 
 //void drawBorder(int height, int width, u8 colour){
@@ -120,13 +111,10 @@ void drawBackground(){
 //	}
 //}
 
-void drawWaypoint(int x, int y){
-	drawRect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, MAGENTA);
+void drawWaypoint(int x, int y, u8 color){
+	drawRect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, color);
 }
 
-void drawStart(int x, int y){
-	drawRect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, GREEN);
-}
 
 // Draws a rectangle of solid colour on the screen
 void drawRect(int xLoc, int yLoc, int width, int height, u8 colour) {
@@ -138,18 +126,19 @@ void drawRect(int xLoc, int yLoc, int width, int height, u8 colour) {
         }
     }
 }
-//
-//void drawPath(int x, int y, u8 colour){
-//	x+= (CELL_DIM/2);
-//	y+= (CELL_DIM/2);
-//	int i, i2;
-//	for (i = x-2; i<=x+2; i++){
-//		for (i2 = y-2; i2<=y+2; i2++){
-//			*((volatile u8 *) FRAME_BUFFER + CORNER_MARGIN + i + (WIDTH * (i2+CORNER_MARGIN))) = colour;
-//		}
-//	}
-//}
+
+void drawPath(int x, int y){
+	x = (x * CELL_DIM) + (CELL_DIM/2);
+	y = (y * CELL_DIM) + (CELL_DIM/2);
+	int i, i2;
+	for (i = x-2; i<=x+2; i++){
+		for (i2 = y-2; i2<=y+2; i2++){
+			drawDot(i, i2, RED);
+//			*((volatile u8 *) FRAME_BUFFER + CORNER_MARGIN + i + (WIDTH * (i2+CORNER_MARGIN))) = RED;
+		}
+	}
+}
 
 void drawDot(int x, int y, u8 colour) {
-	*((volatile u8 *) FRAME_BUFFER + CORNER_MARGIN + x + (WIDTH * (y+CORNER_MARGIN))) = colour;
+	*((volatile u8 *) FRAME_BUFFER + x + (WIDTH * (y))) = colour;
 }

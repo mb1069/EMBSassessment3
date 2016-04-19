@@ -6,9 +6,10 @@
 void init_graphics();
 void print_world(u64* maze);
 void drawWall(int x, int y, int dir, int length, int grid_height, int grid_width);
-void drawWaypoint(int x, int y);
+void drawWaypoint(int x, int y, u8 color);
 void drawStart(int x, int y);
 void drawGrid(int height, int width);
 void draw(world_t* world);
+void drawPath(int x, int y);
 
 #endif

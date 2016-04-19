@@ -35,8 +35,8 @@ u4 best_tour[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
 u8 grid_size;
 
-int NUM_NODES = 2000;
-node_t nodes[2000];
+int NUM_NODES = 3600;
+node_t nodes[3600];
 
 //Top-level function
 void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
@@ -120,12 +120,12 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 			}
 		}
 	}
-//	for (u8 w1 = 0; w1 < num_waypoints; w1++) {
-//		for (u8 w2 = 0; w2 < num_waypoints; w2++) {
-//			printf("%d ", (int) (distance_matrix[w1][w2]));
-//		}
-//		printf("\r");
-//	}
+	for (u8 w1 = 0; w1 < num_waypoints; w1++) {
+		for (u8 w2 = 0; w2 < num_waypoints; w2++) {
+			printf("%d ", (int) (distance_matrix[w1][w2]));
+		}
+		printf("\r");
+	}
 	uint32 shortest_loop = get_shortest_loop(distance_matrix, num_waypoints,
 			best_tour);
 	printf("Best solution length: %d \n\r", (int) shortest_loop);

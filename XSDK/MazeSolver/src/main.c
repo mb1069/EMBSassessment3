@@ -81,25 +81,26 @@ int main() {
 	    }
 
 	    xil_printf("\n\r");
-	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
-	    	xil_printf("%08x ", (int) testdata[i]);
-	    }
+//	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
+//	    	xil_printf("%08x ", (int) testdata[i]);
+//	    }
+
 	    for (i=0; i<1+data_i; i++){
 	    	putfslx(testdata[i], 0, FSL_DEFAULT);
 	    }
 	    xil_printf("Sent to hardware \n\r");
 
-	    xil_printf("\r\n");
 	    u32 val;
 	    getfslx(val, 0, FSL_DEFAULT);
 	    i = 0;
 	    while (val!='\n'){
-//	    	result[i++] = val;
-	    	xil_printf("%d \n\r", (int) val);
+	    	u8 x = (val >> 16) & 0xFF;
+	    	u8 y = (val) & 0xFF;
+	    	xil_printf("x: %d y: %d \n\r", (int) x, (int) y);
+	    	drawPath(x, y);
 	    	getfslx(val, 0, FSL_DEFAULT);
 	    }
 	    u32 shortest_path;
-	    xil_printf("Getting shortest path: \n\r");
 
 	    getfslx(shortest_path, 0, FSL_DEFAULT);
 	    xil_printf("Got shortest path: %d\n\r", (int) shortest_path);

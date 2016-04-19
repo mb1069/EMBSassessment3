@@ -69,7 +69,15 @@ void request_world(int size, u64 id) {
 //	}
 //	return 1;
 //}
-
+int memcmp2(u8 *buff1, u8 *buff2, int len){
+	int i;
+	for (i=0; i<len;i++){
+		if (buff1[i]!=buff2[i]){
+			return 1;
+		}
+	}
+	return 0;
+}
 
 void receive_world(world_t* world){
 	int i;
@@ -77,7 +85,7 @@ void receive_world(world_t* world){
 	volatile int recv_len = 0;
 	while (recv_len == 0)  {
 		recv_len = XEmacLite_Recv(&ether, recv_buffer);
-		if (memcmp(recv_buffer, mac_address, 6)!=0){
+		if (memcmp2(recv_buffer, mac_address, 6)!=0){
 			recv_len = 0;
 		}
 	}
@@ -170,7 +178,13 @@ int receive_reply(){
 	volatile int recv_len = 0;
 	while (recv_len == 0)  {
 		recv_len = XEmacLite_Recv(&ether, recv_buffer);
-		if (memcmp(recv_buffer, mac_address, 6)!=0){
+//		int i;
+//		for (i=0; i<6;i++){
+//			if (recv_buffer[i]!=mac_address[i]){
+//				recv_len = 0;
+//			}
+//		}
+		if (memcmp2(recv_buffer, mac_address, 6)!=0){
 			recv_len = 0;
 		}
 	}
