@@ -22,7 +22,7 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 int NUMDATA = 27;
 
 wall_t walls[20];
-uint32 num_walls;
+uint32 num_walls = 1;
 uint32 read_walls = 0;
 
 point_t waypoints[12];
@@ -46,13 +46,16 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 
 	int i;
 	//Read in NUMDATA items
-	readloop: for (i = 0; i < NUMDATA; i++) {
-		int32 in = input.read();
-		if (i == 0) {
-			grid_size = (in >> 16) & 0xFF;
-			num_waypoints = (in >> 8) & 0xFF;
-			num_walls = in & 0xFF;
-		} else if (read_waypoints < num_waypoints) {
+	int32 in = input.read();
+	grid_size = (in >> 16) & 0xFF;
+	num_waypoints = (in >> 8) & 0xFF;
+	num_walls = in & 0xFF;
+	printf("Num_waypoints: %d \n", (int) num_waypoints);
+	printf("Num_walls: %d \n", (int) num_walls);
+
+	readloop: for (i = 0; i < (num_waypoints/2) + (num_walls); i++) {
+		in = input.read();
+		if (read_waypoints < num_waypoints) {
 			waypoints[read_waypoints].x = in & 0xFF;
 			waypoints[read_waypoints].y = (in >> 8) & 0xFF;
 			read_waypoints++;
@@ -78,14 +81,12 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 
 	printf("Grid_size: %d \n", (int) grid_size);
 
-	printf("Num_waypoints: %d \n", (int) num_waypoints);
-
 	for (i = 0; i < num_waypoints; i++) {
 		printf("Waypoint %d  x: %d y: %d \r", i, (int) waypoints[i].x,
 				(int) waypoints[i].y);
 	}
 
-	printf("Num_walls: %d \n", (int) num_walls);
+
 	for (i = 0; i < num_walls; i++) {
 		printf("Walls %d  x: %d y: %d dir: %d len: %d \r", i, (int) walls[i].x,
 				(int) walls[i].y, (int) walls[i].dir, (int) walls[i].len);
@@ -335,16 +336,17 @@ int find_first_empty_slot(node_t* nodes, point_t* target) {
 			return i;
 		}
 	}
-	int c = 0;
-	int index = -1;
-	for (i = 0; i < NUM_NODES; i++) {
-		u16 node_val = nodes[i].cost + manhattan(&nodes[i].coords, target);
-		if (node_val > c) {
-			c = node_val;
-			index = i;
-		}
-	}
-	return index;
+//	int c = 0;
+//	int index = -1;
+//	for (i = 0; i < NUM_NODES; i++) {
+//		u16 node_val = nodes[i].cost + manhattan(&nodes[i].coords, target);
+//		if (node_val > c) {
+//			c = node_val;
+//			index = i;
+//		}
+//	}
+//	printf("Kicked \n\r");
+	return 0;
 }
 
 int manhattan(point_t* point1, point_t* point2) {

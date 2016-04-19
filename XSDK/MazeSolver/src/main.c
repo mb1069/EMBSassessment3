@@ -47,9 +47,6 @@ int main() {
 	    memcpy(&testdata[1],&world.waypoints,  sizeof(world.waypoints[0])*world.num_waypoints);
 	    memcpy(&testdata[1+(world.num_waypoints/2)], &world.walls, sizeof(world.walls[0])*world.num_walls);
 
-//	     TODO check memcpy against vivado
-//	     000a0406 02070002 05060302 01000800
-//	     03010305 02010409 04000203 04010504 01010803
 	    int data_i = 0;
 //	    for (i = 0; i<world.num_waypoints; i= i + 2){
 //	    	u32 *data = (u32*) &world.waypoints[i];
@@ -80,10 +77,13 @@ int main() {
 	    	testdata[1+(data_i++)] = data;
 	    }
 
+	    //	     TODO check memcpy against vivado
+	    //	     000a0406 02070002 05060302 01000800
+	    //	     03010305 02010409 04000203 04010504 01010803
 	    xil_printf("\n\r");
-//	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
-//	    	xil_printf("%08x ", (int) testdata[i]);
-//	    }
+	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
+	    	xil_printf("%08x ", (int) testdata[i]);
+	    }
 
 	    for (i=0; i<1+data_i; i++){
 	    	putfslx(testdata[i], 0, FSL_DEFAULT);
@@ -94,12 +94,14 @@ int main() {
 	    getfslx(val, 0, FSL_DEFAULT);
 	    i = 0;
 	    while (val!='\n'){
+	    	xil_printf("%08x ", val);
 	    	u8 x = (val >> 16) & 0xFF;
+	    	xil_printf("%08x ", x);
 	    	u8 y = (val) & 0xFF;
-	    	xil_printf("x: %d y: %d \n\r", (int) x, (int) y);
 	    	drawPath(x, y);
 	    	getfslx(val, 0, FSL_DEFAULT);
 	    }
+	    xil_printf("\n\r");
 	    u32 shortest_path;
 
 	    getfslx(shortest_path, 0, FSL_DEFAULT);
@@ -110,8 +112,8 @@ int main() {
 //
 //
 //	    getInput();
-//	    solve_world(&world, shortest_path);
-//	    xil_printf("Server replied %d \n\r", receive_reply());
+	    solve_world(&world, shortest_path);
+	    xil_printf("Server replied %d \n\r", receive_reply());
 //
 //		xil_printf("Enter solution length: ");
 //		u32 length = getInput();

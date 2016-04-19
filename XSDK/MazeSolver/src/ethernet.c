@@ -21,7 +21,7 @@ void init_ethernet(){
 	XEmacLite_SetMacAddress(&ether, mac_address); //Set our sending MAC address
 }
 
-void request_world(int size, u64 id) {
+void request_world(int size, u32 id) {
 	XEmacLite_FlushReceive(&ether); //Clear any recieved messages
 
 	int i;
@@ -46,10 +46,15 @@ void request_world(int size, u64 id) {
 	//Write size
 	*buffer++ = 0x01;
 	*buffer++ = size;
-	*buffer++ = (id & 0xFF000000) >> 24;
-	*buffer++ = (id & 0xFF0000) >> 16;
-	*buffer++ = (id & 0xFF00) >> 8;
-	*buffer++ =  id & 0xFF;
+	memcpy(buffer, &id, 4);
+	for (i = 0; i < 25; i++){
+		xil_printf("%02x ", tmit_buffer[i]);
+	}
+	xil_printf("\n\r");
+//	*buffer++ = (id & 0xFF000000) >> 24;
+//	*buffer++ = (id & 0xFF0000) >> 16;
+//	*buffer++ = (id & 0xFF00) >> 8;
+//	*buffer++ =  id & 0xFF;
 
 	//Send the buffer
 	//The size argument is the data bytes + XEL_HEADER_SIZE which is defined
@@ -165,6 +170,11 @@ void solve_world(world_t* world, u32 path_len){
 	*buffer++ = (path_len & 0xFF0000) >> 16;
 	*buffer++ = (path_len & 0xFF00) >> 8;
 	*buffer++ = (path_len & 0xFF);
+//	buffer -= 4;
+//	for (i=0; i<4; i++){
+//		xil_printf("%02x ", *buffer++);
+//	}
+	xil_printf("\n\r");
 	xil_printf("Sent solution\n\r");
 
 	//Send the buffer

@@ -150,10 +150,18 @@ int main() {
 			0x0500123A,
 			0x01000B11,
 			0x01002A11};
+
+    uint32 testdata3[27] = {0x003C0C14, 0x30050D1E, 0x0836230D, 0x24261006,
+    		0x08353B3B, 0x02060029, 0x291F1919, 0x0A001230, 0x0C001535,
+			0x0700361B, 0x01003A0C, 0x13010034, 0x0C00392D, 0x07011917,
+			0x0F00260C, 0x07002910, 0x0E00362B, 0x06013930, 0x0F012F13,
+			0x0F010613, 0x01010E30, 0x0E001D37, 0x0300030C, 0x0E00371B,
+			0x12001104, 0x08002C15, 0x02002B15};
+
     //Write input data
     printf("Num data: %d \r", (int) (num_walls+(num_waypoints/2)+1));
     for (i = 0; i < num_walls+(num_waypoints/2)+1; i++) {
-        to_hw.write(testdata[i]);
+        to_hw.write(testdata2[i]);
     }
 
     //Run the hardware
@@ -166,11 +174,15 @@ int main() {
     	result[i++] = sub;
     	sub = from_hw.read();
     }
+
+    printf("\n\r");
     for (int z = 0; z < i; z++){
     	int x = (result[z] >> 16) & 0xFF;
     	int y = (result[z]) & 0xFF;
-//    	printf("x: %d y: %d \r", x, y);
+    	printf("%08x ", (int) result[z]);
+//    	printf("x: %d   %04x y: %d   %08x \r", x, (int) (result[z] >> 16) & 0xFF, y, (int) result[z]);
     }
+    printf("\n\r");
     printf("Shortest path: %d\n", (int) from_hw.read());
 
 }
