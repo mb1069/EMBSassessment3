@@ -3,7 +3,8 @@
 #include "main.h"
 XEmacLite ether;
 
-static u8 mac_address[] = {0x00, 0x11, 0x22, 0x33, 0x00, 0x17}; // Remember to change this to *your* MAC address!
+// My mac address
+static u8 mac_address[] = {0x00, 0x11, 0x22, 0x33, 0x00, 0x17};
 
 
 /*
@@ -21,6 +22,9 @@ void init_ethernet(){
 	XEmacLite_SetMacAddress(&ether, mac_address); //Set our sending MAC address
 }
 
+/*
+ * Method to request a world from the server
+ */
 void request_world(int size, u32 id) {
 	XEmacLite_FlushReceive(&ether); //Clear any recieved messages
 
@@ -47,33 +51,13 @@ void request_world(int size, u32 id) {
 	*buffer++ = 0x01;
 	*buffer++ = size;
 	memcpy(buffer, &id, 4);
-	for (i = 0; i < 25; i++){
-		xil_printf("%02x ", tmit_buffer[i]);
-	}
-	xil_printf("\n\r");
-//	*buffer++ = (id & 0xFF000000) >> 24;
-//	*buffer++ = (id & 0xFF0000) >> 16;
-//	*buffer++ = (id & 0xFF00) >> 8;
-//	*buffer++ =  id & 0xFF;
-
-	//Send the buffer
-	//The size argument is the data bytes + XEL_HEADER_SIZE which is defined
-	//as the size of the destination MAC plus the type/length field
 
 	XEmacLite_Send(&ether, tmit_buffer, 10 + XEL_HEADER_SIZE);
 }
 
-//int memcmp2(u8 *arr1, u8 *arr2, int len){
-//
-//	while (len>=0){
-//		xil_printf("Comparing: %d %d %d \n\r", (int) arr1[len], (int) arr2[len], len);
-//		if (arr1[len]!=arr2[len]){
-//			return 0;
-//		}
-//		len--;
-//	}
-//	return 1;
-//}
+/*
+ * Method to compare two u8 arrays, returns 0 if len first elements in arrays are of equal value
+ */
 int memcmp2(u8 *buff1, u8 *buff2, int len){
 	int i;
 	for (i=0; i<len;i++){
@@ -84,6 +68,9 @@ int memcmp2(u8 *buff1, u8 *buff2, int len){
 	return 0;
 }
 
+/*
+ * Method to receive world parameters including walls, waypoints, and dimensions
+ */
 void receive_world(world_t* world){
 	int i;
 	//Poll for receive packet. recv_len must be defined as volatile!
@@ -95,11 +82,8 @@ void receive_world(world_t* world){
 		}
 	}
 
-	// We have a frame. Note that recv_len may be LONGER than the frame
-	// that was sent. (Ethernet is weird, and that is why we need length
-	// bytes in our protocols.)
-	u8 *buffer = recv_buffer;
 
+	u8 *buffer = recv_buffer;
 	for(i = 0; i < recv_len; i++) {
 		// Loop until start of message
 		if (*buffer++==0x55){
@@ -128,16 +112,14 @@ void receive_world(world_t* world){
 	world->num_walls = *buffer++;
 	for (i = 0; i < world->num_walls; i++, buffer+=sizeof(wall_t)){
 		memcpy(&world->walls[i], buffer, sizeof(wall_t));
-//		world->walls[i].x = *buffer++; // X
-//		world->walls[i].y = *buffer++; // Y
-//		world->walls[i].dir = *buffer++; // Dir
-//		world->walls[i].len = *buffer++; //Length
-//		xil_printf("Wall %d %d %d %d \n\r", world->walls[i][0], world->walls[i][1] ,world->walls[i][2], world->walls[i][3]);
 	}
 }
-
+/*
+ * Method to send solution to a world
+ */
 void solve_world(world_t* world, u32 path_len){
-	XEmacLite_FlushReceive(&ether); //Clear any recieved messages
+	//Clear any received messages
+	XEmacLite_FlushReceive(&ether);
 
 	int i;
 	u8 *buffer = tmit_buffer;
@@ -150,50 +132,41 @@ void solve_world(world_t* world, u32 path_len){
 	*buffer++ = 0x00;
 	*buffer++ = 0x50;
 
-	//Write the source MAC address
+	// Write the source MAC address
 	for(i = 0; i < 6; i++)
 		*buffer++ = mac_address[i];
 
-	//Write the type
+	// Write the type
 	*buffer++ = 0x55;
 	*buffer++ = 0xAB;
 
-	//Write size
+	// Write message # and size
 	*buffer++ = 0x03;
 	*buffer++ = world->size;
+	// Decompose world_id into 4 bytes
 	*buffer++ = (world->id & 0xFF000000) >> 24;
 	*buffer++ = (world->id & 0xFF0000) >> 16;
 	*buffer++ = (world->id & 0xFF00) >> 8;
 	*buffer++ = (world->id & 0xFF);
+
+	// Single byte to enable walls
 	*buffer++ = 0;
+
+	// Decompose solution length into 4 bytes
 	*buffer++ = (path_len & 0xFF000000) >> 24;
 	*buffer++ = (path_len & 0xFF0000) >> 16;
 	*buffer++ = (path_len & 0xFF00) >> 8;
 	*buffer++ = (path_len & 0xFF);
-//	buffer -= 4;
-//	for (i=0; i<4; i++){
-//		xil_printf("%02x ", *buffer++);
-//	}
-	xil_printf("\n\r");
-	xil_printf("Sent solution\n\r");
 
-	//Send the buffer
-	//The size argument is the data bytes + XEL_HEADER_SIZE which is defined
-	//as the size of the destination MAC plus the type/length field
+	// Transmit
 	XEmacLite_Send(&ether, tmit_buffer, 11 + XEL_HEADER_SIZE);
 }
 
 int receive_reply(){
-	//Poll for receive packet. recv_len must be defined as volatile!
 	volatile int recv_len = 0;
 	while (recv_len == 0)  {
 		recv_len = XEmacLite_Recv(&ether, recv_buffer);
-//		int i;
-//		for (i=0; i<6;i++){
-//			if (recv_buffer[i]!=mac_address[i]){
-//				recv_len = 0;
-//			}
-//		}
+		// Ensure transmission is not a cat fact
 		if (memcmp2(recv_buffer, mac_address, 6)!=0){
 			recv_len = 0;
 		}

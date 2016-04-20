@@ -8,8 +8,7 @@ typedef struct __attribute__((packed)){
 } point_t;
 
 typedef struct __attribute__((packed)){
-	u8 x;
-	u8 y;
+	point_t coords;
 	u8 dir;
 	u8 len;
 } wall_t;
