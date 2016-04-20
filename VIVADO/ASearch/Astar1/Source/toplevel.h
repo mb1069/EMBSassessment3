@@ -10,9 +10,10 @@
 typedef ap_uint<32> uint32;
 typedef ap_int<32> int32;
 typedef ap_uint<16> u16;
-typedef ap_uint<11> u11;
+typedef ap_uint<12> u12;
 typedef ap_uint<8> u8;
 typedef ap_uint<4> u4;
+typedef ap_uint<2> u2;
 typedef ap_uint<1> u1;
 
 //Prototypes
@@ -35,10 +36,9 @@ typedef struct {
 } point_t;
 
 typedef struct {
-	u4 set;
-	u11 cost;
-	point_t coords;
-	u11 prev;
+	u2 set;
+	u12 cost;
+	u12 prev;
 } node_t;
 
 

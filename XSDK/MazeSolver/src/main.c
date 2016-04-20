@@ -77,9 +77,6 @@ int main() {
 	    	testdata[1+(data_i++)] = data;
 	    }
 
-	    //	     TODO check memcpy against vivado
-	    //	     000a0406 02070002 05060302 01000800
-	    //	     03010305 02010409 04000203 04010504 01010803
 	    xil_printf("\n\r");
 	    for (i = 0; i<world.num_walls+(world.num_waypoints/2)+1; i++){
 	    	xil_printf("%08x ", (int) testdata[i]);
@@ -90,28 +87,25 @@ int main() {
 	    }
 	    xil_printf("Sent to hardware \n\r");
 
-	    u32 val;
-	    getfslx(val, 0, FSL_DEFAULT);
+	    u32 shortest_path;
+	    getfslx(shortest_path, 0, FSL_DEFAULT);
 	    i = 0;
-	    while (val!='\n'){
-	    	xil_printf("%08x ", val);
-	    	u8 x = (val >> 16) & 0xFF;
-	    	xil_printf("%08x ", x);
-	    	u8 y = (val) & 0xFF;
+
+	    u32 res;
+	    getfslx(res, 0, FSL_DEFAULT);
+
+	    while (res != (u32) 0xFFFF){
+	    	int x = (res >> 16) & 0xFF;
+	    	int y = (res) & 0xFF;
 	    	drawPath(x, y);
-	    	getfslx(val, 0, FSL_DEFAULT);
+	    	getfslx(res, 0, FSL_DEFAULT);
 	    }
 	    xil_printf("\n\r");
-	    u32 shortest_path;
 
-	    getfslx(shortest_path, 0, FSL_DEFAULT);
 	    xil_printf("Got shortest path: %d\n\r", (int) shortest_path);
 
 
 
-//
-//
-//	    getInput();
 	    solve_world(&world, shortest_path);
 	    xil_printf("Server replied %d \n\r", receive_reply());
 //

@@ -65,7 +65,7 @@ void drawGrid(int width, int height){
 			drawDot(x*CELL_DIM, y*CELL_DIM, BLACK);
 		}
 	}
-//	drawBorder(height, width, BLACK);
+	drawBorder(height, width, BLACK);
 }
 
 void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height){
@@ -97,19 +97,19 @@ void drawBackground(){
 	drawRect(0, 0, WIDTH, HEIGHT, WHITE);
 }
 
-//void drawBorder(int height, int width, u8 colour){
-//	int x, y;
-//	x = y = 0;
-//	for (y = -1; y<(CELL_DIM * height) + 1; y++){
-//		drawDot(-1, y, colour);
-//		drawDot((CELL_DIM * width)+1, y, colour);
-//	}
-//	x = y = 0;
-//	for (x = -1; x<(CELL_DIM * width) + 1; x++){
-//		drawDot(x, -1, colour);
-//		drawDot(x, (CELL_DIM * height) + 1, colour);
-//	}
-//}
+void drawBorder(int height, int width, u8 colour){
+	int x, y;
+	x = y = 0;
+	for (y = -1; y<(CELL_DIM * height) + 1; y++){
+		drawDot(-1, y, colour);
+		drawDot((CELL_DIM * width)+1, y, colour);
+	}
+	x = y = 0;
+	for (x = -1; x<(CELL_DIM * width) + 1; x++){
+		drawDot(x, -1, colour);
+		drawDot(x, (CELL_DIM * height) + 1, colour);
+	}
+}
 
 void drawWaypoint(int x, int y, u8 color){
 	drawRect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, color);

@@ -199,11 +199,6 @@ int receive_reply(){
 		}
 	}
 
-	// We have a frame. Note that recv_len may be LONGER than the frame
-	// that was sent. (Ethernet is weird, and that is why we need length
-	// bytes in our protocols.)
-	xil_printf("Received mark \n\r");
-
 
 	return recv_buffer[15];
 }

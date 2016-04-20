@@ -3,7 +3,6 @@
 
 int main() {
 	int i;
-
     hls::stream<uint32> to_hw, from_hw;
 
 // Small 0
@@ -116,12 +115,6 @@ int main() {
     memcpy(&testdata[1],&waypoints,  sizeof(waypoints));
     memcpy(&testdata[1+(num_waypoints/2)], &walls, sizeof(walls[0])*num_walls);
 
-    for (i = 0; i<num_walls+(num_waypoints/2)+1; i++){
-    	printf("%08x ", (int) testdata[i]);
-    }
-    printf("\r");
-
-
     uint32 testdata2[27] = {
     		0x003C0C14,
 			0x31392107,
@@ -151,38 +144,82 @@ int main() {
 			0x01000B11,
 			0x01002A11};
 
-    uint32 testdata3[27] = {0x003C0C14, 0x30050D1E, 0x0836230D, 0x24261006,
-    		0x08353B3B, 0x02060029, 0x291F1919, 0x0A001230, 0x0C001535,
-			0x0700361B, 0x01003A0C, 0x13010034, 0x0C00392D, 0x07011917,
-			0x0F00260C, 0x07002910, 0x0E00362B, 0x06013930, 0x0F012F13,
-			0x0F010613, 0x01010E30, 0x0E001D37, 0x0300030C, 0x0E00371B,
-			0x12001104, 0x08002C15, 0x02002B15};
-
+    uint32 testdata3[27] = {0x001E0A0C, 0x1B130C16, 0x101B061A, 0x0703111C, 0x12191C11, 0x08011B12, 0x05001C00, 0x09011705, 0x06010E09, 0x09001617, 0x06010F04, 0x0301120D, 0x07010A02, 0x0300170C, 0x06011111, 0x0500170F, 0x09001914, 0x0200151C};
+    int num_written = 0;
     //Write input data
     printf("Num data: %d \r", (int) (num_walls+(num_waypoints/2)+1));
     for (i = 0; i < num_walls+(num_waypoints/2)+1; i++) {
-        to_hw.write(testdata2[i]);
+        to_hw.write(testdata[i]);
+        num_written++;
     }
+    num_written++;
 
+    printf("Sent data\n\r");
     //Run the hardware
     toplevel(to_hw, from_hw);
     //Read and report the output
-    uint32 sub = from_hw.read();
-    uint32 result[400];
-    i = 0;
-    while(sub!='\n'){
-    	result[i++] = sub;
-    	sub = from_hw.read();
+    uint32 shortest_path = from_hw.read();
+
+
+    uint32 res = from_hw.read();
+    while (res != (uint32) 0xFFFF){
+    	uint32 x = (res >> 16) & 0xFF;
+    	uint32 y = (res) & 0xFF;
+    	printf("x: %d y: %d \n\r ", (long) x, (long) y);
+    	res = from_hw.read();
     }
 
-    printf("\n\r");
-    for (int z = 0; z < i; z++){
-    	int x = (result[z] >> 16) & 0xFF;
-    	int y = (result[z]) & 0xFF;
-    	printf("%08x ", (int) result[z]);
-//    	printf("x: %d   %04x y: %d   %08x \r", x, (int) (result[z] >> 16) & 0xFF, y, (int) result[z]);
-    }
-    printf("\n\r");
-    printf("Shortest path: %d\n", (int) from_hw.read());
+    printf("Num written: %d \n\r", (int) num_written);
+    printf("Shortest path: %d\n", (int) shortest_path);
+    printf("Num written: %d \n\r", (int) num_written);
+
+
+//    num_written = 0 ;
+//    for (i = 0; i < num_walls+(num_waypoints/2)+1; i++) {
+//        to_hw.write(testdata[i]);
+//        num_written++;
+//    }
+//    num_written++;
+//    printf("Sent data\n\r");
+//    //Run the hardware
+//    toplevel(to_hw, from_hw);
+//    //Read and report the output
+//    shortest_path = from_hw.read();
+//
+//    res = from_hw.read();
+//    while (res != (uint32) 0xFFFF){
+//    	int x = (res >> 16) & 0xFF;
+//    	int y = (res) & 0xFF;
+//    	printf("x: %d y: %d \n\r ", x, y);
+//    	res = from_hw.read();
+//    }
+//
+//    printf("Num written: %d \n\r", (int) num_written);
+//    printf("Shortest path: %d\n", (int) shortest_path);
+//    printf("From %d to %d \n\r", from_hw.empty(), to_hw.empty());
+//
+//    num_written = 0 ;
+//    for (i = 0; i < num_walls+(num_waypoints/2)+1; i++) {
+//        to_hw.write(testdata[i]);
+//        num_written++;
+//    }
+//    num_written++;
+//    printf("Sent data\n\r");
+//    //Run the hardware
+//    toplevel(to_hw, from_hw);
+//    //Read and report the output
+//    shortest_path = from_hw.read();
+//
+//    res = from_hw.read();
+//    while (res != (uint32) 0xFFFF){
+//    	int x = (res >> 16) & 0xFF;
+//    	int y = (res) & 0xFF;
+////    	printf("%08x ", (int) res);
+//    	res = from_hw.read();
+//    }
+//
+//    printf("Num written: %d \n\r", (int) num_written);
+//    printf("Shortest path: %d\n", (int) shortest_path);
+//    printf("From %d to %d \n\r", from_hw.empty(), to_hw.empty());
 
 }
