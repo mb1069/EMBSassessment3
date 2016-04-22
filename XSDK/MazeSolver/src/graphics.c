@@ -58,7 +58,7 @@ void draw(world_t* world){
 	}
 
 	for (i=0; i< world->num_walls; i++){
-		drawWall(world->walls[i].x, world->walls[i].y, world->walls[i].dir, world->walls[i].len, world->width, world->height);
+		drawWall(world->walls[i].coords.x, world->walls[i].coords.y, world->walls[i].dir, world->walls[i].len, world->width, world->height);
 	}
 }
 
