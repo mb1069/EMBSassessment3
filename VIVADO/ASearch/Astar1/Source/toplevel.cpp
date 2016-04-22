@@ -45,6 +45,7 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 			distance_matrix[i][i2]=0;
 		}
 	}
+
 	for (i=0; i<NUM_NODES; i++){
 		nodes[i].set=0;
 	}
