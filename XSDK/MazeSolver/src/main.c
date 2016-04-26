@@ -26,12 +26,12 @@ int main() {
     	// Store in structure
 		world_t world = {.id = world_id, .size = world_size};
 
-		xil_printf("Sending... \n\r");
+		xil_printf("	Sending... \n\r");
 		// Request other parameters of the world given id and size
 		request_world(world_size, world_id);
 		receive_world(&world);
 
-		xil_printf("Received world: \n\r id: %d size: %d waypoints: %d walls: %d\n\r", world.id, world.size, world.height, world.num_waypoints, world.num_walls);
+		xil_printf("	Received world: \n\r 	id: %d size: %d waypoints: %d walls: %d\n\r", world.id, world.size, world.height, world.num_waypoints, world.num_walls);
 
 		draw(&world);
 
@@ -74,7 +74,7 @@ int main() {
 	    for (i=0; i<1+data_i; i++){
 	    	putfslx(world_data[i], 0, FSL_DEFAULT);
 	    }
-	    xil_printf("Sent to hardware \n\r");
+	    xil_printf("	Sent to hardware \n\r");
 
 
 	    // Receive first 4 bytes of data corresponding to shortest found path through all waypoints
@@ -91,9 +91,8 @@ int main() {
 	    	drawPath(x, y);
 	    	getfslx(res, 0, FSL_DEFAULT);
 	    }
-	    xil_printf("\n\r");
 
-	    xil_printf("Got shortest path: %d\n\r", (int) shortest_path);
+	    xil_printf("	Got shortest path: %d\n\r", (int) shortest_path);
 
 
 	    // Verify solution with server
@@ -101,22 +100,23 @@ int main() {
 
 	    // Receive reply from server
 		int mark = receive_reply();
-		xil_printf("Server replied %d \n\r", mark);
+		xil_printf("	Server replied %d \n\r", mark);
 		switch (mark){
 			case 0:
-				xil_printf("Correct solution!: %d \n\r", shortest_path);
+				xil_printf("	Correct solution!: %d \n\r", shortest_path);
 				break;
 			case 1:
-				xil_printf("Solution was too long: %d \n\r", shortest_path);
+				xil_printf("	Solution was too long: %d \n\r", shortest_path);
 				break;
 			case 2:
-				xil_printf("Solution was too short: %d \n\r", shortest_path);
+				xil_printf("	Solution was too short: %d \n\r", shortest_path);
 				break;
 			default:
-				xil_printf("Invalid reply received. \n\r");
+				xil_printf("	Invalid reply received. \n\r");
 				break;
 		}
     }
+    xil_printf("\n\r");
     return 0;
 }
 
