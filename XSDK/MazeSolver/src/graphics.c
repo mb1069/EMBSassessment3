@@ -43,7 +43,6 @@ void init_graphics(){
  * Method to draw world, including grid, borders, waypoints, starting_waypoint and walls
  */
 void draw(world_t* world){
-	xil_printf("	Drawing\n\r");
 	// Scales to fill most of screen
 	CELL_DIM = (HEIGHT-1)/world->width;
 	drawGrid(world->width, world->height);

@@ -2,6 +2,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <xil_types.h>
 typedef struct __attribute__((packed)){
 	u8 x;
 	u8 y;
