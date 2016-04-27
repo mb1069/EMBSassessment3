@@ -78,7 +78,7 @@ int main() {
 			xil_printf("	- Invalid reply received. \n\r");
 			break;
 		}
-		xil_printf("\n\r \n\r");
+		xil_printf("\n\r \n\r ");
 	}
 	return 0;
 }
