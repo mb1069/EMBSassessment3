@@ -286,7 +286,7 @@ u1 is_wall(u8 x, u8 y) {
 // Returns the index of the best node by n.cost + manhattan distance
 int get_best_open_node(point_t target, node_t* nodes) {
 	int index = -1;
-	uint32 min_cost = 4294967296;
+	uint32 min_cost = 4294967295;
 	int i;
 	for (i = 0; i < NUM_NODES; i++) {
 		if (nodes[i].set == 2) {
@@ -294,7 +294,7 @@ int get_best_open_node(point_t target, node_t* nodes) {
 
 			if (node_cost < min_cost) {
 				index = i;
-				min_cost =2147483647 node_cost;
+				min_cost = node_cost;
 			}
 		}
 	}
