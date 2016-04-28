@@ -36,7 +36,6 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 #pragma HLS RESOURCE variable=input core=AXI4Stream
 #pragma HLS RESOURCE variable=output core=AXI4Stream
 #pragma HLS INTERFACE ap_ctrl_none port=return
-	int num_read = 0;
 	// Initialise all variables
 	int i, i2;
 	for (i=0; i<12; i++){
@@ -45,28 +44,30 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 			distance_matrix[i][i2]=0;
 		}
 	}
-
 	for (i=0; i<NUM_NODES; i++){
 		nodes[i].set=0;
 	}
-
+	read_walls = 0;
+	read_waypoints = 0;
 
 	//Read in NUMDATA items
 	uint32 in = input.read();
-	// Decompose into 8 bit values
 	grid_size = (in >> 16) & 0xFF;
 	num_waypoints = (in >> 8) & 0xFF;
 	num_walls = in & 0xFF;
+	printf("Num_waypoints: %d \n", (int) num_waypoints);
+	printf("Num_walls: %d \n", (int) num_walls);
 
-	// Read in all waypoints/walls
 	in = input.read();
 	for (i=0; i< num_walls+(num_waypoints/2); i++){
 		if (read_waypoints < num_waypoints) {
 			waypoints[read_waypoints].x = in & 0xFF;
 			waypoints[read_waypoints].y = (in >> 8) & 0xFF;
+			read_waypoints++;
 			if (read_waypoints < num_waypoints) {
 				waypoints[read_waypoints].x = (in >> 16) & 0xFF;
 				waypoints[read_waypoints].y = (in >> 24) & 0xFF;
+				read_waypoints++;
 			}
 		} else if (read_walls < num_walls) {
 			walls[read_walls].x = in & 0xFF;
@@ -89,6 +90,7 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 				distance_matrix[w1][w2] = get_shortest_path(waypoints[w1],
 						waypoints[w2], 0, output);
 				distance_matrix[w2][w1] = distance_matrix[w1][w2];
+
 			}
 		}
 	}
@@ -115,7 +117,6 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 	output.write((uint32) 0xFFFF);
 	return;
 }
-
 // Convert an index to X coordinate
 u8 i_to_x(u12 index){
 	u12 i = index;
@@ -162,6 +163,21 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 	while (num_open > 0) {
 		u8 x;
 		u8 y;
+//		printf("\n\r");
+//		for (x=0; x<60; x++){
+//			for (y=0; y<60; y++){
+//				if (is_wall(y,x)){
+//					printf("@");
+//				} else if (nodes[xy_to_i(x, y)].set>0){
+//					printf("%d", (int) nodes[xy_to_i(x, y)].set);
+//				} else {
+//					printf("-");
+//				}
+//			}
+//			printf("\r");
+//		}
+//		printf("\n\r");
+
 
 		index = get_best_open_node(w2, nodes);
 		x = i_to_x(index);
@@ -174,6 +190,7 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 		}
 		close_node(index, &num_open, nodes);
 	}
+
 	if (get_path) {
 		while (1) {
 			uint32 out = 0;
@@ -189,6 +206,7 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 		}
 	}
 	return min_len;
+
 }
 
 // Expand node and potentially open/update neighbours
@@ -212,7 +230,6 @@ void affect_neighbour(u8 x, u8 y, u12 cost, int* num_open, node_t* nodes,
 
 	int i = xy_to_i(x, y);
 
-	// If node already opened
 	if (nodes[i].set > 0) {
 		if (nodes[i].cost > (cost + 1)) {
 			nodes[i].prev = parent_index;
@@ -238,15 +255,15 @@ u1 is_openable(u8 x, u8 y, node_t* nodes) {
 	}
 	return 1;
 }
-
+// Verify is coordinate is in a wall
 void open_node(u8 x, u8 y, u12 cost, int* num_open, node_t* nodes,
 		point_t* target, u12 parent_index) {
+
 	node_t n = { 2, cost + 1, parent_index };
 	nodes[xy_to_i(x, y)] = n;
 	num_open++;
 }
 
-// Verify is coordinate is in a wall
 u1 is_wall(u8 x, u8 y) {
 	for (uint32 i = 0; i < num_walls; i++) {
 		// Horizontal
@@ -269,7 +286,7 @@ u1 is_wall(u8 x, u8 y) {
 // Returns the index of the best node by n.cost + manhattan distance
 int get_best_open_node(point_t target, node_t* nodes) {
 	int index = -1;
-	uint32 min_cost = 2147483647;
+	uint32 min_cost = 4294967296;
 	int i;
 	for (i = 0; i < NUM_NODES; i++) {
 		if (nodes[i].set == 2) {
@@ -277,7 +294,7 @@ int get_best_open_node(point_t target, node_t* nodes) {
 
 			if (node_cost < min_cost) {
 				index = i;
-				min_cost = node_cost;
+				min_cost =2147483647 node_cost;
 			}
 		}
 	}
@@ -288,6 +305,7 @@ void close_node(int index, int* num_open, node_t* nodes) {
 	nodes[index].set = 1;
 	num_open--;
 }
+
 
 int manhattan(u8 x, u8 y, point_t* point2) {
 	return abs(x - point2->x) + abs(y - point2->y);
