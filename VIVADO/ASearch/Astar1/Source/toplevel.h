@@ -19,9 +19,9 @@ typedef ap_uint<1> u1;
 //Prototypes
 void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output);
 void swap(u4 *x, u4 *y);
-void permute(u16 matrix[][12], u4 tour[12], u4 size, u16* smallest_distance, u4 best_tour[12]);
-u16 get_shortest_loop(u16 matrix[][12], u4 size, u4 tour[12]);
-u16 get_path_cost(u16 matrix[][12], u4 tour[12], u4 size);
+void permute(u12 matrix[][12], u4 tour[13], u4 size, u16* smallest_distance, u4 best_tour[13]);
+u16 get_shortest_loop(u12 matrix[][12], u4 best_tour[13], u4 size, u4 tour[13]);
+u16 get_path_cost(u12 matrix[][12], u4 tour[13],  u4 size);
 
 typedef struct {
 	u8 x;

@@ -35,14 +35,14 @@ int main() {
 		xil_printf("	- id: %d size: %d waypoints: %d walls: %d\n\r",
 				world.id, world.size, world.height, world.num_waypoints,
 				world.num_walls);
-		xil_printf("	- Drawing\n\r");
-		draw(&world);
+
 
 		u32 world_data[27];
 		int data_i = pack(&world, world_data);
 		solve(world_data, data_i);
 		xil_printf("	- Sent to hardware \n\r");
-
+		xil_printf("	- Drawing\n\r");
+		draw(&world);
 		// Receive first 4 bytes of data corresponding to shortest found path through all waypoints
 		u32 shortest_path = recv_u32();
 

@@ -12,7 +12,7 @@ void open_node(u8 x, u8 y, u12 cost, int* num_open, node_t* nodes,
 		point_t* target, u12 parent_index);
 void affect_neighbour(u8 x, u8 y, u12 cost, int* num_open, node_t* nodes,
 		point_t* target, u12 parent_index);
-u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
+u12 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 		hls::stream<uint32> &output);
 
 wall_t walls[20];
@@ -23,9 +23,9 @@ point_t waypoints[12];
 u4 num_waypoints;
 uint32 read_waypoints;
 
-u16 distance_matrix[12][12];
+u12 distance_matrix[12][12];
 
-u4 best_tour[12];
+u4 best_tour[13];
 u8 grid_size;
 
 int NUM_NODES = 3600;
@@ -44,6 +44,7 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 			distance_matrix[i][i2]=0;
 		}
 	}
+	best_tour[12] = 0;
 	for (i=0; i<NUM_NODES; i++){
 		nodes[i].set=0;
 	}
@@ -96,14 +97,19 @@ void toplevel(hls::stream<uint32> &input, hls::stream<uint32> &output) {
 	}
 
 	// Calculate shortest hamiltonian cycle
-	uint32 shortest_loop = get_shortest_loop(distance_matrix, num_waypoints,
-			best_tour);
+	u4 tour[13] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0 };
+	tour[num_waypoints] = 0;
+	uint32 shortest_loop = get_shortest_loop(distance_matrix, best_tour, num_waypoints, tour);
 	printf("Best solution length: %d \n\r", (int) shortest_loop);
 
 	// Output solution to microblaze for verification with server
 	output.write(shortest_loop);
 
 	// Then perform A* between pairs of waypoints to retrieve path
+	for (int x=0; x<num_waypoints; x++){
+		printf("%d, ", (int) best_tour[x]);
+	}
+	printf("\n\r");
 	for (i = 0; i < num_waypoints; i++) {
 		if (i != num_waypoints - 1) {
 			get_shortest_path(waypoints[best_tour[i]],
@@ -143,7 +149,7 @@ u12 xy_to_i(u8 x, u8 y){
 }
 
 // A* between w1 and w2, optionally can return path through AXI stream
-u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
+u12 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 		hls::stream<uint32> &output) {
 
 	for (int n = 0; n < NUM_NODES; n++) {
@@ -163,21 +169,6 @@ u16 get_shortest_path(point_t w1, point_t w2, u1 get_path,
 	while (num_open > 0) {
 		u8 x;
 		u8 y;
-//		printf("\n\r");
-//		for (x=0; x<60; x++){
-//			for (y=0; y<60; y++){
-//				if (is_wall(y,x)){
-//					printf("@");
-//				} else if (nodes[xy_to_i(x, y)].set>0){
-//					printf("%d", (int) nodes[xy_to_i(x, y)].set);
-//				} else {
-//					printf("-");
-//				}
-//			}
-//			printf("\r");
-//		}
-//		printf("\n\r");
-
 
 		index = get_best_open_node(w2, nodes);
 		x = i_to_x(index);
