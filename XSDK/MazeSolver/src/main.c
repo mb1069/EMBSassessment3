@@ -10,7 +10,7 @@
 int getInput();
 
 int main() {
-	xil_printf("\n\r\n");
+	xil_printf("\n\r");
 	// Initialise VGA and ethernet
 	init_graphics();
 	init_ethernet();
@@ -55,7 +55,7 @@ int main() {
 		while (res != (u32) 0xFFFF) {
 			int x = (res >> 16) & 0xFF;
 			int y = (res) & 0xFF;
-			drawPath(x, y);
+			draw_path(x, y);
 			res = recv_u32();
 		}
 
@@ -78,7 +78,8 @@ int main() {
 			xil_printf("	- Invalid reply received. \n\r");
 			break;
 		}
-		xil_printf("\n\r \n\r ");
+		draw_border_solution(&world, mark);
+		xil_printf("\n\r \n\r");
 	}
 	return 0;
 }

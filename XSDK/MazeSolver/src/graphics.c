@@ -26,10 +26,10 @@ int CELL_DIM = HEIGHT/60;
 #define MAGENTA 0b01010101
 
 // Signatures
-void drawBackground();
-void drawBorder(int height, int width, u8 colour);
-void drawRect(int xLoc, int yLoc, int width, int height, u8 colour);
-void drawDot(int x, int y, u8 colour);
+void draw_background();
+void draw_border(int height, int width, u8 colour);
+void draw_rect(int xLoc, int yLoc, int width, int height, u8 colour);
+void draw_dot(int x, int y, u8 colour);
 
 /*
  * Method to initialise graphic address and buffer
@@ -50,14 +50,14 @@ void draw(world_t* world){
 	int i;
 	for (i=0; i< world->num_waypoints; i++){
 		if (i==0){
-			drawWaypoint(world->waypoints[i].x, world->waypoints[i].y, GREEN);
+			draw_waypoint(world->waypoints[i].x, world->waypoints[i].y, GREEN);
 		} else {
-			drawWaypoint(world->waypoints[i].x, world->waypoints[i].y, MAGENTA);
+			draw_waypoint(world->waypoints[i].x, world->waypoints[i].y, MAGENTA);
 		}
 	}
 
 	for (i=0; i< world->num_walls; i++){
-		drawWall(world->walls[i].coords.x, world->walls[i].coords.y, world->walls[i].dir, world->walls[i].len, world->width, world->height);
+		draw_wall(world->walls[i].coords.x, world->walls[i].coords.y, world->walls[i].dir, world->walls[i].len, world->width, world->height);
 	}
 }
 
@@ -65,20 +65,20 @@ void draw(world_t* world){
  * Method to draw dotted grid of dimensions corresponding to world size
  */
 void drawGrid(int width, int height){
-	drawBackground();
+	draw_background();
 	int x, y;
 	for (x=0; x<width+1; x++){
 		for (y=0; y<height+1; y++){
-			drawDot(x*CELL_DIM, y*CELL_DIM, BLACK);
+			draw_dot(x*CELL_DIM, y*CELL_DIM, BLACK);
 		}
 	}
-	drawBorder(height, width, BLACK);
+	draw_border(height, width, BLACK);
 }
 
 /*
  * Method to draw a wall in the world
  */
-void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height){
+void draw_wall(int x, int y, int dir, int length, int grid_width, int grid_height){
 	if (dir==0){
 		if (x+length>grid_width){
 			length = grid_width-x;
@@ -93,7 +93,7 @@ void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height
 	y *= CELL_DIM;
 	int i;
 	for (i=0; i<length; i++){
-		drawRect(x+1, y+1, CELL_DIM-1, CELL_DIM-1, BLACK);
+		draw_rect(x+1, y+1, CELL_DIM-1, CELL_DIM-1, BLACK);
 		if (dir==0){
 			x+=CELL_DIM;
 		} else {
@@ -106,44 +106,52 @@ void drawWall(int x, int y, int dir, int length, int grid_width, int grid_height
 /*
  * Method to draw white background
  */
-void drawBackground(){
-	drawRect(0, 0, WIDTH, HEIGHT, WHITE);
+void draw_background(){
+	draw_rect(0, 0, WIDTH, HEIGHT, WHITE);
 }
+
+/*
+ * Change border colour based on response from server
+ */
+void draw_border_solution(world_t* world, int mark){
+	draw_border(world->height, world->width, mark==0 ? GREEN : RED);
+}
+
 
 /*
  * Method to draw border around dotted grid
  */
-void drawBorder(int height, int width, u8 colour){
+void draw_border(int height, int width, u8 colour){
 	int x, y;
 	x = y = 0;
 	for (y = -1; y<(CELL_DIM * height) + 1; y++){
-		drawDot(-1, y, colour);
-		drawDot((CELL_DIM * width)+1, y, colour);
+		draw_dot(-1, y, colour);
+		draw_dot((CELL_DIM * width)+1, y, colour);
 	}
 	x = y = 0;
 	for (x = -1; x<(CELL_DIM * width) + 1; x++){
-		drawDot(x, -1, colour);
-		drawDot(x, (CELL_DIM * height) + 1, colour);
+		draw_dot(x, -1, colour);
+		draw_dot(x, (CELL_DIM * height) + 1, colour);
 	}
 }
 
 /*
  * Method to draw waypoint in grid
  */
-void drawWaypoint(int x, int y, u8 color){
-	drawRect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, color);
+void draw_waypoint(int x, int y, u8 color){
+	draw_rect((x*CELL_DIM) + 1, (y*CELL_DIM) + 1, CELL_DIM-1, CELL_DIM-1, color);
 }
 
 
 /*
  * Method to draw a rectangle
  */
-void drawRect(int xLoc, int yLoc, int width, int height, u8 colour) {
+void draw_rect(int xLoc, int yLoc, int width, int height, u8 colour) {
 	int x, y;
 
     for (y = yLoc; y < yLoc + height; y++) {
         for (x = xLoc; x < xLoc + width; x++) {
-            drawDot(x, y, colour);
+            draw_dot(x, y, colour);
         }
     }
 }
@@ -151,13 +159,13 @@ void drawRect(int xLoc, int yLoc, int width, int height, u8 colour) {
 /*
  * Method to draw a dotted red path in world
  */
-void drawPath(int x, int y){
+void draw_path(int x, int y){
 	x = (x * CELL_DIM) + (CELL_DIM/2);
 	y = (y * CELL_DIM) + (CELL_DIM/2);
 	int i, i2;
-	for (i = x-2; i<=x+2; i++){
-		for (i2 = y-2; i2<=y+2; i2++){
-			drawDot(i, i2, RED);
+	for (i = x-1; i<=x+2; i++){
+		for (i2 = y-1; i2<=y+2; i2++){
+			draw_dot(i, i2, RED);
 		}
 	}
 }
@@ -165,6 +173,6 @@ void drawPath(int x, int y){
 /*
  * Method to draw an individual dot of colour
  */
-void drawDot(int x, int y, u8 colour) {
+void draw_dot(int x, int y, u8 colour) {
 	*((volatile u8 *) FRAME_BUFFER + x + (WIDTH * (y))) = colour;
 }
